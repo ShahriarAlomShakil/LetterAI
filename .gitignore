@@ -1,0 +1,45 @@
+# Build and cache files
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+*.lock
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local configuration
+.env
+local.properties
+
+# Flutter/Dart specific
+ios/Flutter/flutter_export_environment.sh
+android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
+android/.gradle/
+ios/Pods/
+ios/.symlinks/
+web/packages/
+linux/flutter/ephemeral/
+macos/Flutter/ephemeral/
+windows/flutter/ephemeral/
+
+# Testing
+coverage/
+test/.test_coverage.dart
+
+# Documentation build
+doc/api/
+
+# Temporary files
+*.tmp
+*.temp
+*~

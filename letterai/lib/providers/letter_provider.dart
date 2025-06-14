@@ -16,6 +16,10 @@ class LetterProvider extends ChangeNotifier {
   bool _isGeneratingContent = false;
   String? _error;
   
+  // Current letter being edited
+  Letter? _currentLetter;
+  bool _hasUnsavedChanges = false;
+  
   // Getters
   List<Letter> get letters => _letters;
   List<Letter> get templates => _templates;
@@ -23,7 +27,44 @@ class LetterProvider extends ChangeNotifier {
   bool get isLoading => _isLoading;
   bool get isGeneratingContent => _isGeneratingContent;
   String? get error => _error;
+  Letter? get currentLetter => _currentLetter;
+  bool get hasUnsavedChanges => _hasUnsavedChanges;
   
+  /// Create a new letter
+  void createNewLetter(String id, String title, String content) {
+    _currentLetter = Letter(
+      id: id,
+      title: title,
+      content: content,
+      categoryId: '',
+      subcategoryId: '',
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+    _hasUnsavedChanges = true;
+    notifyListeners();
+  }
+  
+  /// Set current letter
+  void setCurrentLetter(Letter? letter) {
+    _currentLetter = letter;
+    _hasUnsavedChanges = false;
+    notifyListeners();
+  }
+  
+  /// Mark as having unsaved changes
+  void markAsChanged() {
+    _hasUnsavedChanges = true;
+    notifyListeners();
+  }
+  
+  /// Clear current letter
+  void clearCurrentLetter() {
+    _currentLetter = null;
+    _hasUnsavedChanges = false;
+    notifyListeners();
+  }
+
   /// Load all letters from storage
   Future<void> loadLetters() async {
     _isLoading = true;
@@ -120,28 +161,49 @@ class LetterProvider extends ChangeNotifier {
     required String prompt,
     String tone = 'professional',
   }) async {
+    print('DEBUG: LetterProvider.generateContent called');
+    print('Category: $category, Subcategory: $subcategory');
+    
     _isGeneratingContent = true;
     _error = null;
     notifyListeners();
     
     try {
-      if (!_aiService.isConfigured) {
+      // Check if AI is configured
+      print('DEBUG: Checking AI configuration...');
+      final isConfigured = await _aiService.isConfigured;
+      print('DEBUG: AI configured: $isConfigured');
+      
+      if (!isConfigured) {
+        print('DEBUG: AI not configured, returning fallback content');
         // Return fallback content if AI is not configured
-        return _aiService.getFallbackContent(subcategory);
+        final fallback = _aiService.getFallbackContent(subcategory);
+        print('DEBUG: Fallback content length: ${fallback.length}');
+        return fallback;
       }
       
+      print('DEBUG: Calling AI service...');
       final content = await _aiService.generateLetterContent(
         category: category,
         subcategory: subcategory,
         prompt: prompt,
         tone: tone,
       );
+      print('DEBUG: AI response received, length: ${content.length}');
       return content;
     } catch (e) {
       _error = 'Failed to generate content: $e';
-      debugPrint('Error generating content: $e');
+      print('ERROR in generateContent: $e');
+      
       // Return fallback content on error
-      return _aiService.getFallbackContent(subcategory);
+      try {
+        final fallback = _aiService.getFallbackContent(subcategory);
+        print('DEBUG: Returning fallback after error, length: ${fallback.length}');
+        return fallback;
+      } catch (fallbackError) {
+        print('ERROR getting fallback content: $fallbackError');
+        return 'Unable to generate content. Please check your settings and try again.';
+      }
     } finally {
       _isGeneratingContent = false;
       notifyListeners();
@@ -154,7 +216,7 @@ class LetterProvider extends ChangeNotifier {
     required String context,
   }) async {
     try {
-      if (!_aiService.isConfigured) {
+      if (!(await _aiService.isConfigured)) {
         return [text]; // Return original text if AI not configured
       }
       
@@ -177,7 +239,7 @@ class LetterProvider extends ChangeNotifier {
     String tone = 'professional',
   }) async {
     try {
-      if (!_aiService.isConfigured) {
+      if (!(await _aiService.isConfigured)) {
         return _getDefaultOutline(subcategory);
       }
       

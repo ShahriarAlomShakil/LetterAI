@@ -1,0 +1,71 @@
+00:00 +0: loading /home/shakil/Projects/LetterAI/letterai/test/unit/letter_model_test.dart
+00:00 +0: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_model_test.dart: Letter Model Tests Letter should be created with required fields
+00:00 +1: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_model_test.dart: Letter Model Tests Letter should have unique IDs
+00:00 +2: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_model_test.dart: Letter Model Tests copyWith should create new instance with updated fields
+00:00 +3: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_model_test.dart: Letter Model Tests Letter should handle template flag correctly
+00:00 +4: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_model_test.dart: Letter Model Tests Letter should handle custom dates
+00:00 +5: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_model_test.dart: Letter Model Tests Letter should handle JSON serialization
+00:01 +6: /home/shakil/Projects/LetterAI/letterai/test/unit/storage_service_test.dart: StorageService Tests getLetters should return empty list when no letters stored
+00:01 +7: /home/shakil/Projects/LetterAI/letterai/test/unit/storage_service_test.dart: StorageService Tests saveLetter should store letter in shared preferences
+00:01 +8: /home/shakil/Projects/LetterAI/letterai/test/unit/storage_service_test.dart: StorageService Tests deleteLetter should remove letter from storage
+00:01 +9: /home/shakil/Projects/LetterAI/letterai/test/unit/storage_service_test.dart: StorageService Tests saveLetter should update existing letter
+00:01 +10: /home/shakil/Projects/LetterAI/letterai/test/unit/storage_service_test.dart: StorageService Tests multiple letters should be stored and retrieved correctly
+00:02 +11: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_provider_test.dart: LetterProvider Tests loadLetters should populate letters list
+Error loading letters: StorageException: Failed to load letters: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:02 +11 -1: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_provider_test.dart: LetterProvider Tests loadLetters should populate letters list [E]
+  Expected: <2>
+    Actual: <0>
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 474:18  expect
+  test/unit/letter_provider_test.dart 51:7            main.<fn>.<fn>
+  
+00:02 +11 -1: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_provider_test.dart: LetterProvider Tests saveLetter should call storage service
+Error saving letter: StorageException: Failed to save letter: StorageException: Failed to load letters: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:02 +11 -2: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_provider_test.dart: LetterProvider Tests saveLetter should call storage service [E]
+  No matching calls (actually, no calls at all).
+  (If you called `verify(...).called(0);`, please instead use `verifyNever(...);`.)
+  package:matcher                            fail
+  package:mockito/src/mock.dart 852:7        _VerifyCall._checkWith
+  package:mockito/src/mock.dart 1152:18      _makeVerify.<fn>
+  test/unit/letter_provider_test.dart 74:13  main.<fn>.<fn>
+  
+00:02 +11 -2: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_provider_test.dart: LetterProvider Tests generateContent should return AI-generated content
+00:02 +11 -3: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_provider_test.dart: LetterProvider Tests generateContent should return AI-generated content [E]
+  Expected: 'AI-generated letter content'
+    Actual: 'Dear [Recipient],\n'
+              '\n'
+              '[Opening paragraph stating the purpose of your letter]\n'
+              '\n'
+              '[Body paragraph with main content]\n'
+              '\n'
+              '[Closing paragraph with next steps or call to action]\n'
+              '\n'
+              'Sincerely,\n'
+              '[Your Name]'
+     Which: is different.
+            Expected: AI-generat ...
+              Actual: Dear [Reci ...
+                      ^
+             Differ at offset 0
+  
+  package:matcher                                     expect
+  package:flutter_test/src/widget_tester.dart 474:18  expect
+  test/unit/letter_provider_test.dart 95:7            main.<fn>.<fn>
+  
+00:02 +11 -3: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_provider_test.dart: LetterProvider Tests isLoading should be true during operations
+Error loading letters: StorageException: Failed to load letters: Binding has not yet been initialized.
+The "instance" getter on the ServicesBinding binding mixin is only available once that binding has been initialized.
+Typically, this is done by calling "WidgetsFlutterBinding.ensureInitialized()" or "runApp()" (the latter calls the former). Typically this call is done in the "void main()" method. The "ensureInitialized" method is idempotent; calling it multiple times is not harmful. After calling that method, the "instance" getter will return the binding.
+In a test, one can call "TestWidgetsFlutterBinding.ensureInitialized()" as the first line in the test's "main()" method to initialize the binding.
+If ServicesBinding is a custom binding mixin, there must also be a custom binding class, like WidgetsFlutterBinding, but that mixes in the selected binding, and that is the class that must be constructed before using the "instance" getter.
+00:02 +12 -3: /home/shakil/Projects/LetterAI/letterai/test/unit/letter_provider_test.dart: LetterProvider Tests categories should return predefined categories
+00:02 +13 -3: Some tests failed.

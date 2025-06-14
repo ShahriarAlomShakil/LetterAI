@@ -1,5 +1,11 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Define a simple enum directly in the settings service for now
+enum AIProviderType {
+  openai,
+  gemini,
+}
+
 class SettingsService {
   static const String _themeKey = 'app_theme';
   static const String _fontSizeKey = 'font_size';
@@ -8,6 +14,11 @@ class SettingsService {
   static const String _defaultToneKey = 'default_tone';
   static const String _apiKeyKey = 'openai_api_key';
   static const String _languageKey = 'app_language';
+  static const String _aiProviderKey = 'ai_provider';
+  static const String _openaiApiKeyKey = 'openai_api_key';
+  static const String _geminiApiKeyKey = 'gemini_api_key';
+  static const String _openaiModelKey = 'openai_model';
+  static const String _geminiModelKey = 'gemini_model';
   
   /// Get theme preference
   Future<String> getTheme() async {
@@ -85,6 +96,89 @@ class SettingsService {
     }
   }
   
+  /// Get AI Provider preference
+  Future<AIProviderType> getAIProvider() async {
+    final prefs = await SharedPreferences.getInstance();
+    final providerString = prefs.getString(_aiProviderKey) ?? 'openai';
+    
+    switch (providerString.toLowerCase()) {
+      case 'openai':
+        return AIProviderType.openai;
+      case 'gemini':
+        return AIProviderType.gemini;
+      default:
+        return AIProviderType.openai;
+    }
+  }
+  
+  /// Set AI Provider preference
+  Future<void> setAIProvider(AIProviderType provider) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_aiProviderKey, provider.toString().split('.').last);
+  }
+  
+  /// Get OpenAI API key specifically
+  Future<String?> getOpenAIApiKey() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_openaiApiKeyKey);
+  }
+  
+  /// Set OpenAI API key specifically
+  Future<void> setOpenAIApiKey(String? apiKey) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (apiKey != null && apiKey.isNotEmpty) {
+      await prefs.setString(_openaiApiKeyKey, apiKey);
+    } else {
+      await prefs.remove(_openaiApiKeyKey);
+    }
+  }
+  
+  /// Get Gemini API key
+  Future<String?> getGeminiApiKey() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_geminiApiKeyKey);
+  }
+  
+  /// Set Gemini API key
+  Future<void> setGeminiApiKey(String? apiKey) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (apiKey != null && apiKey.isNotEmpty) {
+      await prefs.setString(_geminiApiKeyKey, apiKey);
+    } else {
+      await prefs.remove(_geminiApiKeyKey);
+    }
+  }
+  
+  /// Get API key for specific provider
+  Future<String?> getApiKeyForProvider(AIProviderType provider) async {
+    print('DEBUG: Getting API key for provider: $provider');
+    String? apiKey;
+    
+    switch (provider) {
+      case AIProviderType.openai:
+        apiKey = await getOpenAIApiKey() ?? await getApiKey(); // Backward compatibility
+        break;
+      case AIProviderType.gemini:
+        apiKey = await getGeminiApiKey();
+        break;
+    }
+    
+    print('DEBUG: API key retrieved: ${apiKey != null ? 'exists (${apiKey.length} chars)' : 'null'}');
+    return apiKey;
+  }
+  
+  /// Set API key for specific provider
+  Future<void> setApiKeyForProvider(AIProviderType provider, String? apiKey) async {
+    switch (provider) {
+      case AIProviderType.openai:
+        await setOpenAIApiKey(apiKey);
+        break;
+      case AIProviderType.gemini:
+        await setGeminiApiKey(apiKey);
+        break;
+    }
+  }
+  
   /// Get app language preference
   Future<String> getLanguage() async {
     final prefs = await SharedPreferences.getInstance();
@@ -119,6 +213,52 @@ class SettingsService {
     await prefs.remove(_defaultToneKey);
     await prefs.remove(_languageKey);
     // Note: API key is not reset for security reasons
+  }
+  
+  /// Get OpenAI model preference
+  Future<String> getOpenAIModel() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_openaiModelKey) ?? 'gpt-3.5-turbo';
+  }
+  
+  /// Set OpenAI model preference
+  Future<void> setOpenAIModel(String model) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_openaiModelKey, model);
+  }
+  
+  /// Get Gemini model preference
+  Future<String> getGeminiModel() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_geminiModelKey) ?? 'gemini-1.5-flash';
+  }
+  
+  /// Set Gemini model preference
+  Future<void> setGeminiModel(String model) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_geminiModelKey, model);
+  }
+  
+  /// Get model for specific provider
+  Future<String> getModelForProvider(AIProviderType provider) async {
+    switch (provider) {
+      case AIProviderType.openai:
+        return await getOpenAIModel();
+      case AIProviderType.gemini:
+        return await getGeminiModel();
+    }
+  }
+  
+  /// Set model for specific provider
+  Future<void> setModelForProvider(AIProviderType provider, String model) async {
+    switch (provider) {
+      case AIProviderType.openai:
+        await setOpenAIModel(model);
+        break;
+      case AIProviderType.gemini:
+        await setGeminiModel(model);
+        break;
+    }
   }
   
   /// Clear all app data (including API key)

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/letter_category.dart';
+import 'letter_editor_screen.dart';
 
 class SubcategorySelectionScreen extends StatelessWidget {
   final LetterCategory category;
@@ -85,10 +86,13 @@ class SubcategorySelectionScreen extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () {
-          // Navigate to letter editor - will be implemented in later phases
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Letter editor for ${subcategory.name} coming soon!'),
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => LetterEditorScreen(
+                category: category,
+                subcategory: subcategory,
+              ),
             ),
           );
         },

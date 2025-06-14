@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'constants/app_theme.dart';
 import 'providers/letter_provider.dart';
+import 'providers/theme_provider.dart';
 import 'screens/home/home_screen.dart';
 
 void main() {
@@ -16,13 +17,19 @@ class LetterAIApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LetterProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
-      child: MaterialApp(
-        title: 'LetterAI',
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        home: const HomeScreen(),
-        debugShowCheckedModeBanner: false,
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'LetterAI',
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+            home: const HomeScreen(),
+            debugShowCheckedModeBanner: false,
+          );
+        },
       ),
     );
   }
