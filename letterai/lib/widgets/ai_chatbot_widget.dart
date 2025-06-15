@@ -9,6 +9,7 @@ class AIChatbotWidget extends StatefulWidget {
   final LetterSubcategory subcategory;
   final Function(String) onContentGenerated;
   final String currentContent;
+  final VoidCallback? onClose;
 
   const AIChatbotWidget({
     super.key,
@@ -16,6 +17,7 @@ class AIChatbotWidget extends StatefulWidget {
     required this.subcategory,
     required this.onContentGenerated,
     required this.currentContent,
+    this.onClose,
   });
 
   @override
@@ -39,9 +41,6 @@ class _AIChatbotWidgetState extends State<AIChatbotWidget>
   ];
   String _selectedTone = 'professional';
 
-  // Quick command suggestions based on letter type
-  List<String> _quickCommands = [];
-
   @override
   void initState() {
     super.initState();
@@ -50,62 +49,12 @@ class _AIChatbotWidgetState extends State<AIChatbotWidget>
       vsync: this,
     )..repeat();
 
-    _initializeQuickCommands();
     _addWelcomeMessage();
-  }
-
-  void _initializeQuickCommands() {
-    switch (widget.subcategory.id) {
-      case 'job_applications':
-        _quickCommands = [
-          'Write job letter',
-          'Add skills',
-          'Improve opening',
-          'Better closing',
-          'Make persuasive',
-        ];
-        break;
-      case 'resignation':
-        _quickCommands = [
-          'Write resignation',
-          'Add gratitude',
-          'Plan transition',
-          'Make professional',
-          'Set notice period',
-        ];
-        break;
-      case 'thank_you':
-        _quickCommands = [
-          'Write thank you',
-          'Express gratitude',
-          'Add personal touch',
-          'Make warmer',
-          'Better closing',
-        ];
-        break;
-      case 'complaints':
-        _quickCommands = [
-          'Write complaint',
-          'State problem',
-          'Suggest solutions',
-          'Be diplomatic',
-          'Add evidence',
-        ];
-        break;
-      default:
-        _quickCommands = [
-          'Write letter',
-          'Improve content',
-          'Make professional',
-          'Fix structure',
-          'Better language',
-        ];
-    }
   }
 
   void _addWelcomeMessage() {
     final welcomeMessage = ChatMessage(
-      text: "Hello! I'm your AI letter writing assistant. I'm here to help you create a perfect ${widget.subcategory.name.toLowerCase()}.\n\nYou can ask me to write content, improve existing text, or use the quick commands below. What would you like me to help you with?\n\n💡 Tip: Make sure you've configured your AI API key in Settings for the best experience!",
+      text: "Hello! I'm your AI letter writing assistant. I'm here to help you create a perfect ${widget.subcategory.name.toLowerCase()}.\n\nYou can ask me to write content, improve existing text, or tell me what you need help with. What would you like me to help you with?\n\n💡 Tip: Make sure you've configured your AI API key in Settings for the best experience!",
       isFromUser: false,
       timestamp: DateTime.now(),
     );
@@ -132,100 +81,64 @@ class _AIChatbotWidgetState extends State<AIChatbotWidget>
       height: chatbotHeight,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 20,
+            offset: const Offset(0, -4),
           ),
         ],
       ),
-      child: Column(
+      child: Stack(
         children: [
-          // Header
-          _buildHeader(),
-          
-          // Chat messages
-          Expanded(
-            child: _buildChatArea(),
+          Column(
+            children: [
+              // Chat messages
+              Expanded(
+                child: _buildChatArea(),
+              ),
+              
+              // Input area
+              _buildInputArea(),
+            ],
           ),
           
-          // Input area
-          _buildInputArea(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.smart_toy,
-              color: Colors.white,
-              size: 24,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'AI Letter Assistant',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+          // Floating close button in top-right corner
+          Positioned(
+            top: 12,
+            right: 12,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface.withOpacity(0.9),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
                   ),
+                ],
+              ),
+              child: IconButton(
+                onPressed: widget.onClose ?? () {
+                  // Fallback: try to pop if no callback provided
+                  Navigator.of(context).pop();
+                },
+                icon: Icon(
+                  Icons.close,
+                  color: Theme.of(context).colorScheme.onSurface,
+                  size: 20,
                 ),
-                Text(
-                  'Helping with ${widget.subcategory.name}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7),
-                  ),
+                padding: const EdgeInsets.all(8),
+                constraints: const BoxConstraints(
+                  minWidth: 36,
+                  minHeight: 36,
                 ),
-              ],
-            ),
-          ),
-          // Tone selector
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: DropdownButton<String>(
-              value: _selectedTone,
-              underline: const SizedBox(),
-              icon: const Icon(Icons.arrow_drop_down, size: 18),
-              style: Theme.of(context).textTheme.bodySmall,
-              items: _tones.map((tone) {
-                return DropdownMenuItem(
-                  value: tone,
-                  child: Text(tone.substring(0, 1).toUpperCase() + tone.substring(1)),
-                );
-              }).toList(),
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _selectedTone = value;
-                  });
-                }
-              },
+              ),
             ),
           ),
         ],
@@ -235,11 +148,57 @@ class _AIChatbotWidgetState extends State<AIChatbotWidget>
 
   Widget _buildChatArea() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
       child: Column(
         children: [
-          // Quick commands
-          if (_messages.length <= 1) _buildQuickCommands(),
+          // Tone selector at the top
+          Row(
+            children: [
+              Icon(
+                Icons.palette,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Tone:',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: DropdownButton<String>(
+                  value: _selectedTone,
+                  underline: const SizedBox(),
+                  icon: const Icon(Icons.arrow_drop_down, size: 16),
+                  style: Theme.of(context).textTheme.bodySmall,
+                  items: _tones.map((tone) {
+                    return DropdownMenuItem(
+                      value: tone,
+                      child: Text(
+                        tone.substring(0, 1).toUpperCase() + tone.substring(1),
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        _selectedTone = value;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
           
           // Chat messages
           Expanded(
@@ -253,55 +212,6 @@ class _AIChatbotWidgetState extends State<AIChatbotWidget>
                 return _buildMessageBubble(_messages[index]);
               },
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickCommands() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Quick Commands:',
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(height: 8),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: _quickCommands.map((command) {
-                  return ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxWidth: constraints.maxWidth * 0.45, // Max 45% of available width
-                    ),
-                    child: ActionChip(
-                      label: Text(
-                        command,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
-                      ),
-                      onPressed: () => _sendQuickCommand(command),
-                      backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-                      side: BorderSide.none,
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  );
-                }).toList(),
-              );
-            },
           ),
         ],
       ),
@@ -432,13 +342,13 @@ class _AIChatbotWidgetState extends State<AIChatbotWidget>
                           onPressed: () {
                             widget.onContentGenerated(message.text);
                             _addMessage(
-                              'Content added to your letter!',
+                              'Content replaced in your letter!',
                               isFromUser: false,
                               hasActions: false,
                             );
                           },
-                          icon: const Icon(Icons.add, size: 16),
-                          label: const Text('Use This'),
+                          icon: const Icon(Icons.swap_horiz, size: 16),
+                          label: const Text('Replace'),
                           style: TextButton.styleFrom(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                             minimumSize: const Size(0, 32),
@@ -656,74 +566,6 @@ class _AIChatbotWidgetState extends State<AIChatbotWidget>
     _addMessage(message, isFromUser: true);
     _messageController.clear();
     _generateAIResponse(message);
-  }
-
-  void _sendQuickCommand(String command) {
-    // Expand short command to full prompt for better AI understanding
-    final fullPrompt = _expandCommand(command);
-    _addMessage(command, isFromUser: true);
-    _generateAIResponse(fullPrompt);
-  }
-
-  String _expandCommand(String shortCommand) {
-    // Create context-aware expansion based on current subcategory
-    final categoryId = widget.subcategory.id;
-    
-    switch (shortCommand) {
-      case 'Write job letter':
-        return 'Write a complete job application letter';
-      case 'Add skills':
-        return 'Add professional skills section';
-      case 'Improve opening':
-        return 'Improve opening paragraph';
-      case 'Better closing':
-        return categoryId == 'thank_you' ? 'Create heartfelt closing' : 'Create compelling closing';
-      case 'Make persuasive':
-        return 'Make it more persuasive';
-        
-      case 'Write resignation':
-        return 'Write a resignation letter';
-      case 'Add gratitude':
-        return 'Add gratitude and appreciation';
-      case 'Plan transition':
-        return 'Include transition planning';
-      case 'Make professional':
-        return 'Make it more professional';
-      case 'Set notice period':
-        return 'Add proper notice period';
-        
-      case 'Write thank you':
-        return 'Write a thank you letter';
-      case 'Express gratitude':
-        return 'Express deep gratitude';
-      case 'Add personal touch':
-        return 'Add personal touch';
-      case 'Make warmer':
-        return 'Make it warmer';
-        
-      case 'Write complaint':
-        return 'Write a complaint letter';
-      case 'State problem':
-        return 'State problem clearly';
-      case 'Suggest solutions':
-        return 'Suggest solutions';
-      case 'Be diplomatic':
-        return 'Make it diplomatic';
-      case 'Add evidence':
-        return 'Add supporting evidence';
-        
-      case 'Write letter':
-        return 'Write a complete letter';
-      case 'Improve content':
-        return 'Improve the content';
-      case 'Fix structure':
-        return 'Add proper structure';
-      case 'Better language':
-        return 'Enhance the language';
-        
-      default:
-        return shortCommand;
-    }
   }
 
   void _addMessage(String text, {required bool isFromUser, bool hasActions = true}) {
